@@ -14,6 +14,7 @@ public class PurchaseResourceAssembler extends ResourceAssemblerSupport<Purchase
 
   @Override
   public PurchaseResource toResource(Purchase entity) {
+    //TODO: add link to the purchase resource
     PurchaseResource resource = instantiateResource(entity);
     return resource;
   }

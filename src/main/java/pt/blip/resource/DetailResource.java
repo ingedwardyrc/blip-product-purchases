@@ -1,5 +1,6 @@
 package pt.blip.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.ResourceSupport;
@@ -25,4 +26,10 @@ public class DetailResource extends ResourceSupport {
   public Double getValue() {
     return detail.getValue();
   }
+
+  @JsonIgnore
+  public Detail getDetail() {
+    return detail;
+  }
+
 }

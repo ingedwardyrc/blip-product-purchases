@@ -51,4 +51,8 @@ public class PurchaseService {
     return purchases;
   }
 
+  public void updatePurchaseAndDetails(Purchase purchase) {
+    purchaseDao.updatePurchase(purchase);
+    detailDao.updateDetails(purchase.getPurchaseDetails());
+  }
 }

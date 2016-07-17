@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -16,6 +15,7 @@ import pt.blip.service.PurchaseService;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,14 +43,15 @@ public class CompanyControllerTest {
 
   @Test
   public void testGetCompanyPurchases() throws Exception {
-    Detail detail_product_1 = new Detail(1L, PURCHASE_ID_1, "Bought in shopping mall", 1, 22000.22);
-    Detail detail_product_2 = new Detail(2L, PURCHASE_ID_2, "Bought in concessionary", 1, 20000.22);
-    Detail detail_product_3 = new Detail(3L, PURCHASE_ID_2, "Bought in concessionary", 1, 30000.22);
+    Detail detail_purchase_1 = new Detail(1L, PURCHASE_ID_1, "Bought in shopping mall", 1, 22000.22);
+    Detail detail_purchase_2 = new Detail(2L, PURCHASE_ID_2, "Bought in concessionary", 1, 20000.22);
+    Detail detail_purchase_3 = new Detail(3L, PURCHASE_ID_2, "Bought in concessionary", 1, 30000.22);
 
-    Purchase validPurchase_1 = new Purchase(PURCHASE_ID_1, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), asList(detail_product_1));
-    Purchase validPurchase_2 = new Purchase(PURCHASE_ID_2, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), asList(detail_product_2, detail_product_3));
+    Purchase validPurchase_1 = new Purchase(PURCHASE_ID_1, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), asList(detail_purchase_1));
+    Purchase validPurchase_2 = new Purchase(PURCHASE_ID_2, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), asList(detail_purchase_2, detail_purchase_3));
 
-    Mockito.when(purchaseService.getAllValidPurchasesWithDetails(11111L)).thenReturn(asList(validPurchase_1, validPurchase_2));
+    when(purchaseService.getAllValidPurchasesWithDetails(11111L)).thenReturn(asList(validPurchase_1, validPurchase_2));
+
     //TODO: finish mvc tests
     mockMvc.perform(get("/company/11111/purchases"))
       .andExpect(jsonPath("$", hasSize(2)))

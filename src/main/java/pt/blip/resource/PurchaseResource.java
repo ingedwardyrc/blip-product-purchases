@@ -1,6 +1,7 @@
 package pt.blip.resource;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
 import org.springframework.hateoas.ResourceSupport;
@@ -34,4 +35,10 @@ public class PurchaseResource extends ResourceSupport {
   public List<DetailResource> getPurchaseDetails() {
     return purchaseDetails;
   }
+
+  @JsonIgnore
+  public Purchase getPurchase() {
+    return purchase;
+  }
+
 }
