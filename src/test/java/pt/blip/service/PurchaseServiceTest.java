@@ -10,6 +10,7 @@ import pt.blip.dao.DetailDao;
 import pt.blip.dao.PurchaseDao;
 import pt.blip.domain.Detail;
 import pt.blip.domain.Purchase;
+import pt.blip.exception.NotFoundException;
 
 import java.util.List;
 
@@ -45,6 +46,33 @@ public class PurchaseServiceTest {
     List<Purchase> purchases = purchaseService.getAllValidPurchases(COMPANY_ID);
     assertEquals(purchases.size(), 1);
     assertEquals(purchases.get(0), validPurchase);
+  }
+
+  @Test(expected=NotFoundException.class)
+  public void shouldGetNotFoundExceptionWhenThereIsNoPurchases(){
+    when(purchaseDao.getAllPurchasesByCompany(COMPANY_ID)).thenReturn(null);
+    purchaseService.getAllValidPurchases(COMPANY_ID);
+  }
+
+  @Test(expected=NotFoundException.class)
+  public void shouldGetNotFoundExceptionWhenThereIsNoDetails(){
+    Purchase notValidpurchase = new Purchase(PURCHASE_ID_NOT_VALID, PRODUCT_TYPE_BMW, DateTime.now().minusDays(1), null);
+    Purchase validPurchase_1 = new Purchase(PURCHASE_ID_1, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), null);
+    Purchase validPurchase_2 = new Purchase(PURCHASE_ID_2, PRODUCT_TYPE_BMW, DateTime.now().plusDays(1), null);
+    when(purchaseDao.getAllPurchasesByCompany(COMPANY_ID)).thenReturn(asList(validPurchase_1, validPurchase_2, notValidpurchase));
+
+    when(detailDao.getDetailsByPurchaseIds(asList(PURCHASE_ID_1, PURCHASE_ID_2))).thenReturn(null);
+
+    purchaseService.getAllValidPurchasesWithDetails(COMPANY_ID);
+  }
+
+  @Test(expected=NotFoundException.class)
+  public void shouldGetNotFoundExceptionWhenThereIsNoValidPurchases(){
+    Purchase notValidpurchase_1 = new Purchase(PURCHASE_ID_1, PRODUCT_TYPE_BMW, DateTime.now().minusDays(1), null);
+    Purchase notValidpurchase_2 = new Purchase(PURCHASE_ID_2, PRODUCT_TYPE_BMW, DateTime.now().minusDays(1), null);
+    when(purchaseDao.getAllPurchasesByCompany(COMPANY_ID)).thenReturn(asList(notValidpurchase_1, notValidpurchase_2));
+
+    purchaseService.getAllValidPurchasesWithDetails(COMPANY_ID);
   }
 
   @Test

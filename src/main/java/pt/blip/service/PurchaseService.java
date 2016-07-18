@@ -6,10 +6,12 @@ import pt.blip.dao.DetailDao;
 import pt.blip.dao.PurchaseDao;
 import pt.blip.domain.Detail;
 import pt.blip.domain.Purchase;
+import pt.blip.exception.NotFoundException;
 
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -22,24 +24,32 @@ public class PurchaseService {
 
   public List<Purchase> getAllValidPurchasesWithDetails(Long companyId) {
     List<Purchase> validPurchases = getAllValidPurchases(companyId);
-    List<Long> purchaseIds = validPurchases.stream()
+    if(validPurchases.isEmpty()) throw new NotFoundException();
+
+    List<Long> purchaseIds = validPurchases
+      .stream()
       .map(Purchase::getId)
       .collect(toList());
-    List<Detail> detailList = detailDao.getDetailsByPurchaseIds(purchaseIds);
+
+    List<Detail> detailList = ofNullable(detailDao.getDetailsByPurchaseIds(purchaseIds))
+      .orElseThrow(NotFoundException::new);
 
     return joinPurchaseAndDetails(validPurchases, detailList);
   }
 
   List<Purchase> getAllValidPurchases(Long companyId) {
-    return purchaseDao.getAllPurchasesByCompany(companyId)
-      .stream().filter(p -> p.getExpires().isAfterNow())
+
+    return ofNullable(purchaseDao.getAllPurchasesByCompany(companyId))
+      .orElseThrow(NotFoundException::new)
+      .stream()
+      .filter(p -> p.getExpires().isAfterNow())
       .collect(toList());
   }
 
   /**
    * This method joins the purchases and the purchases details (in real life this should be done with the database query)
    * this implementation has space complexity n, time complexity n, this can be implemented as time complexity nlogn as well,
-   * ordering both arrays and doing a secuencial insert, without the extra space complexity in case of prioritize space over time
+   * ordering both arrays and doing a sequential insert, without the extra space complexity in case of prioritize space over time
    * @param purchases purchases for the PurchaseResource
    * @param details details  for the PurchaseResource
    * @return the list of PurchaseResource with the details included
